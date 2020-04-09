@@ -4,8 +4,9 @@ import argparse
 
 
 def tile_full(args, work_area, window):
-    print(args)
-    border, title_bar = get_window_decoration_sizes(window.id)
+    border, title_bar = (0, 0)
+    if args.count_decorations:
+        border, title_bar = get_window_decoration_sizes(window.id)
     gap = args.gap
 
     w = work_area.w - 2 * gap - 2 * border
@@ -18,7 +19,9 @@ def tile_full(args, work_area, window):
 
 
 def tile_halves(args, work_area, window):
-    border, title_bar = get_window_decoration_sizes(window.id)
+    border, title_bar = (0, 0)
+    if args.count_decorations:
+        border, title_bar = get_window_decoration_sizes(window.id)
     gap = args.gap
 
     x, y, w, h = [0] * 4
@@ -47,7 +50,9 @@ def tile_halves(args, work_area, window):
 
 
 def tile_thirds(args, work_area, window):
-    border, title_bar = get_window_decoration_sizes(window.id)
+    border, title_bar = (0, 0)
+    if args.count_decorations:
+        border, title_bar = get_window_decoration_sizes(window.id)
     gap = args.gap
 
     x, y, w, h = [0] * 4
@@ -70,7 +75,9 @@ def tile_thirds(args, work_area, window):
 
 
 def tile_quarters(args, work_area, window):
-    border, title_bar = get_window_decoration_sizes(window.id)
+    border, title_bar = (0, 0)
+    if args.count_decorations:
+        border, title_bar = get_window_decoration_sizes(window.id)
     gap = args.gap
 
     w = (work_area.w - 3 * gap - 4 * border) // 2
@@ -98,22 +105,31 @@ parser.add_argument(
     dest='padding')
 parser.add_argument(
     '--gap',
-    nargs=1,
+    nargs='?',
     default=0,
     type=int,
-    help='workspace padding in pixels, format: <bottom> <upper> <left> <right>',
-    dest='padding')
-subparser = parser.add_subparsers('')
-tile_full_parser = subparser.add_parser('tile-full', help='tile active window on the entire work area')
+    help='gap between windows',
+    dest='gap')
+parser.add_argument(
+    '--no-decorations', help="Consider window's title bar and border size to be 0",
+    default=True,
+    action='store_false',
+    dest='count_decorations'
+)
+subparser = parser.add_subparsers(help='tiling mode')
+tile_full_parser = subparser.add_parser('full', help='tile active window on the entire work area')
 tile_full_parser.set_defaults(func=tile_full)
-tile_halves_parser = subparser.add_parser('tile-halves', help='tile active window on half of the work area')
+tile_halves_parser = subparser.add_parser('half', help='tile active window on half of the work area')
 tile_halves_parser.add_argument('direction', default='N')
 tile_halves_parser.set_defaults(func=tile_halves)
-tile_thirds_parser = subparser.add_parser('tile-thirds', help='tile active window on a third of the work area')
-tile_thirds_parser.add_argument('--horizontal', help='tile windows horizontally, defaults to vertical tiling')
+tile_thirds_parser = subparser.add_parser('third', help='tile active window on a third of the work area')
+tile_thirds_parser.add_argument('--horizontal', action='store_false',
+                                default=True,
+                                dest='vertical',
+                                help='tile windows horizontally, defaults to vertical tiling')
 tile_thirds_parser.add_argument('position', default=0, type=int)
 tile_thirds_parser.set_defaults(func=tile_thirds)
-tile_quarters_parser = subparser.add_parser('tile-quarters', help='tile active window on the work area')
+tile_quarters_parser = subparser.add_parser('quarter', help='tile active window on the work area')
 tile_quarters_parser.add_argument('direction', default='NW')
 tile_quarters_parser.set_defaults(func=tile_quarters)
 
