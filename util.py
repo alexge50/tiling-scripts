@@ -3,7 +3,7 @@ from collections import namedtuple
 import re
 
 Window = namedtuple('Window', 'id desktop x y w h title')
-Display = namedtuple('Display', 'x y w h')
+Display = namedtuple('Display', 'x y w h name')
 
 
 def shell_command(command: str):
@@ -29,18 +29,19 @@ def parse_window(line: str):
 
 def get_displays():
     output = shell_command('xrandr')
-    unparsed_geometries = re.compile(r'\bconnected (?:primary )?(?P<geometry>[0-9x+]+\b)').findall(output)
+    unparsed_displays = re.compile(r'(?P<name>[A-Za-z\-0-9]*) +connected (?:primary )?(?P<geometry>[0-9x+]+\b)').findall(output)
 
-    def parse(geometry):
-        numbers = re.compile('([0-9]+)').findall(geometry)
+    def parse(display):
+        numbers = re.compile('([0-9]+)').findall(display[1])
         return Display(
             int(numbers[2]),
             int(numbers[3]),
             int(numbers[0]),
-            int(numbers[1])
+            int(numbers[1]),
+            display[0]
         )
 
-    return [parse(geometry) for geometry in unparsed_geometries]
+    return [parse(display) for display in unparsed_displays]
 
 
 def get_current_display(displays):

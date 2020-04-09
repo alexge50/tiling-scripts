@@ -144,6 +144,7 @@ work_area = Display(
     current_display.y + padding[1],  # upper padding
     current_display.w - padding[2] - padding[3],  # left and right padding
     current_display.h - padding[0] - padding[1],  # bottom and upper padding
+    ''
 )
 
 args.func(args, work_area, window)
