@@ -4,19 +4,89 @@ import argparse
 
 
 def tile_full(args, work_area, window):
-    pass
+    print(args)
+    border, title_bar = get_window_decoration_sizes(window.id)
+    gap = args.gap
+
+    w = work_area.w - 2 * gap - 2 * border
+    h = work_area.h - 2 * gap - border - title_bar
+
+    x = gap + work_area.x + border
+    y = gap + work_area.y + title_bar
+
+    move_window(window.id, x, y, w, h)
 
 
 def tile_halves(args, work_area, window):
-    pass
+    border, title_bar = get_window_decoration_sizes(window.id)
+    gap = args.gap
+
+    x, y, w, h = [0] * 4
+
+    if args.direction in ['W', 'E']:
+        w = (work_area.w - 3 * gap - 4 * border) // 2
+        h = work_area.h - 2 * gap - border - title_bar
+    else:
+        w = work_area.w - 2 * gap - 2 * border
+        h = (work_area.h - 3 * gap - border - 2 * title_bar) // 2
+
+    if args.direction in ['W', 'N']:
+        x = gap + work_area.x
+        y = gap + work_area.y
+    elif args.direction == 'E':
+        x = (work_area.w + gap) // 2 + work_area.x
+        y = gap + work_area.y
+    elif args.direction == 'S':
+        x = gap + work_area.x
+        y = (work_area.h + gap) // 2 + work_area.y
+
+    x += border
+    y += title_bar
+
+    move_window(window.id, x, y, w, h)
 
 
 def tile_thirds(args, work_area, window):
-    pass
+    border, title_bar = get_window_decoration_sizes(window.id)
+    gap = args.gap
+
+    x, y, w, h = [0] * 4
+
+    if args.vertical:
+        w = (work_area.w - 6 * border - 4 * gap) // 3
+        h = work_area.h - 2 * gap - border - title_bar
+        x = work_area.x + args.position * work_area.w // 3 + gap // 2
+        y = work_area.y + gap
+    else:
+        w = work_area.w - 2 * gap - 2 * border
+        h = (work_area.h - 4 * gap - 3 * border - 3 * title_bar) // 3
+        x = work_area.x + gap
+        y = work_area.y + args.position * work_area.h // 3 + gap // 2
+
+    x += border
+    y += title_bar
+
+    move_window(window.id, x, y, w, h)
 
 
 def tile_quarters(args, work_area, window):
-    pass
+    border, title_bar = get_window_decoration_sizes(window.id)
+    gap = args.gap
+
+    w = (work_area.w - 3 * gap - 4 * border) // 2
+    h = (work_area.h - 3 * gap - border - 2 * title_bar) // 2
+
+    direction = {
+        'NW': (0, 0),
+        'NE': (1, 0),
+        'SW': (0, 1),
+        'SE': (1, 1),
+    }[args.direction]
+
+    x = work_area.x + direction[0] * work_area.w // 2 + gap // (1 + direction[0]) + border
+    y = work_area.y + direction[1] * work_area.h // 2 + gap // (1 + direction[1]) + title_bar
+
+    move_window(window.id, x, y, w, h)
 
 
 parser = argparse.ArgumentParser(description='')
