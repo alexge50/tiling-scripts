@@ -83,3 +83,20 @@ def get_windows():
 def move_window(window_id, x, y, w, h):
     shell_command(f'xdotool windowsize {window_id} {w} {h}')
     shell_command(f'xdotool windowmove {window_id} {x} {y}')
+
+
+def get_active_window():
+    window_id = shell_command("printf 0x%08x `xdotool getactivewindow`")
+
+    return parse_window(shell_command(f'wmctrl -l -G | grep {window_id}'))
+
+
+def get_window_decoration_sizes(window_id):
+    output = shell_command(f'xwininfo -id {window_id}')
+    pattern = re.compile(r'(Relative upper-left [XY]: +[0-9]+)')
+    relative_coords = [
+        int(x.split(' ')[-1]) for x in pattern.findall(output)
+    ]
+
+    return relative_coords[0], relative_coords[1]
+
