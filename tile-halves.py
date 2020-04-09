@@ -1,32 +1,63 @@
 #!/usr/bin/env python
 from util import *
+import argparse
 
-current_desktop = get_current_desktop()
-windows = get_windows()
-displays = get_displays()
+
+def tile_full(args, work_area, window):
+    pass
+
+
+def tile_halves(args, work_area, window):
+    pass
+
+
+def tile_thirds(args, work_area, window):
+    pass
+
+
+def tile_quarters(args, work_area, window):
+    pass
+
+
+parser = argparse.ArgumentParser(description='')
+parser.add_argument(
+    '--work-area-padding',
+    nargs=4,
+    default=[0, 0, 0, 0],
+    help='workspace padding in pixels, format: <bottom> <upper> <left> <right>',
+    dest='padding')
+parser.add_argument(
+    '--gap',
+    nargs=1,
+    default=0,
+    type=int,
+    help='workspace padding in pixels, format: <bottom> <upper> <left> <right>',
+    dest='padding')
+subparser = parser.add_subparsers('')
+tile_full_parser = subparser.add_parser('tile-full', help='tile active window on the entire work area')
+tile_full_parser.set_defaults(func=tile_full)
+tile_halves_parser = subparser.add_parser('tile-halves', help='tile active window on half of the work area')
+tile_halves_parser.add_argument('direction', default='N')
+tile_halves_parser.set_defaults(func=tile_halves)
+tile_thirds_parser = subparser.add_parser('tile-thirds', help='tile active window on a third of the work area')
+tile_thirds_parser.add_argument('--horizontal', help='tile windows horizontally, defaults to vertical tiling')
+tile_thirds_parser.add_argument('position', default=0, type=int)
+tile_thirds_parser.set_defaults(func=tile_thirds)
+tile_quarters_parser = subparser.add_parser('tile-quarters', help='tile active window on the work area')
+tile_quarters_parser.add_argument('direction', default='NW')
+tile_quarters_parser.set_defaults(func=tile_quarters)
+
+args = parser.parse_args()
+padding = [int(x) for x in args.padding]
+
 current_display = get_current_display(get_displays())
+window = get_active_window()
 
-filtered_windows = [
-    window for window in windows
-    if is_window_on_display(window, current_display, current_desktop)]
+work_area = Display(
+    current_display.x + padding[3],  # right padding
+    current_display.y + padding[1],  # upper padding
+    current_display.w - padding[2] - padding[3],  # left and right padding
+    current_display.h - padding[0] - padding[1],  # bottom and upper padding
+)
 
-filtered_windows = order_by_stack(current_desktop, filtered_windows)
-
-if len(filtered_windows) < 2:
-    import sys
-    sys.exit()
-
-window_1 = filtered_windows[-1]
-window_2 = filtered_windows[-2]
-
-gap = 10
-padding_bottom = 33
-
-w = (current_display.w - 3 * gap) // 2
-h = current_display.h - 2 * gap - padding_bottom - 35
-
-x = gap + current_display.x
-y = gap + current_display.y
-
-move_window(window_1.id, x, y, w, h)
-move_window(window_2.id, x + w + gap, y, w, h)
+args.func(args, work_area, window)
